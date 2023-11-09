@@ -21,26 +21,13 @@
 severity = brutal
 verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 
-# ===================== Revisit ======================= #
-
-# we need to get rid of the forked ttree
-[-Miscellanea::ProhibitUnrestrictedNoCritic]
-[-Miscellanea::ProhibitUselessNoCritic]
-
-# =============== Temporarily Disabled ================ #
-
-[-BuiltinFunctions::RequireBlockGrep]
-[-BuiltinFunctions::RequireBlockMap]
-[-InputOutput::ProhibitExplicitStdin]
-[-Subroutines::ProhibitExcessComplexity]
-[-Subroutines::RequireArgUnpacking]
-[-ValuesAndExpressions::ProhibitMixedBooleanOperators]
-
 # ===================== Enable ======================== #
 
 [BuiltinFunctions::ProhibitShiftRef]
 [BuiltinFunctions::ProhibitUniversalCan]
 [BuiltinFunctions::ProhibitUniversalIsa]
+[BuiltinFunctions::RequireBlockGrep]
+[BuiltinFunctions::RequireBlockMap]
 [BuiltinFunctions::RequireGlobFunction]
 [ClassHierarchies::ProhibitAutoloading]
 [ClassHierarchies::ProhibitExplicitISA]
@@ -53,6 +40,7 @@ verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 [ErrorHandling::RequireCheckingReturnValueOfEval]
 [InputOutput::ProhibitBarewordDirHandles]
 [InputOutput::ProhibitBarewordFileHandles]
+[InputOutput::ProhibitExplicitStdin]
 [InputOutput::ProhibitInteractiveTest]
 [InputOutput::ProhibitJoinedReadline]
 [InputOutput::ProhibitOneArgSelect]
@@ -63,6 +51,8 @@ verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 [InputOutput::RequireCheckedOpen]
 [Miscellanea::ProhibitFormats]
 [Miscellanea::ProhibitTies]
+[Miscellanea::ProhibitUnrestrictedNoCritic]
+[Miscellanea::ProhibitUselessNoCritic]
 [Modules::ProhibitExcessMainComplexity]
 [Modules::RequireBarewordIncludes]
 [Modules::RequireEndWithOne]
@@ -83,10 +73,12 @@ verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 
 [Subroutines::ProhibitAmpersandSigils]
 [Subroutines::ProhibitBuiltinHomonyms]
+[Subroutines::ProhibitExcessComplexity]
 [Subroutines::ProhibitExplicitReturnUndef]
 [Subroutines::ProhibitNestedSubs]
 [Subroutines::ProhibitReturnSort]
 [Subroutines::ProhibitSubroutinePrototypes]
+[Subroutines::RequireArgUnpacking]
 [Subroutines::RequireFinalReturn]
 [TestingAndDebugging::ProhibitNoWarnings]
 [TestingAndDebugging::ProhibitProlongedStrictureOverride]
@@ -99,6 +91,7 @@ verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 [ValuesAndExpressions::ProhibitInterpolationOfLiterals]
 [ValuesAndExpressions::ProhibitMagicNumbers]
 [ValuesAndExpressions::ProhibitMismatchedOperators]
+[ValuesAndExpressions::ProhibitMixedBooleanOperators]
 [ValuesAndExpressions::ProhibitNoisyQuotes]
 [ValuesAndExpressions::ProhibitQuotesAsQuotelikeOperatorDelimiters]
 [ValuesAndExpressions::ProhibitSpecialLiteralHeredocTerminator]
@@ -154,6 +147,7 @@ allow = %ENV %INC $|
 [-Documentation::RequirePackageMatchesPodName]
 [-Documentation::RequirePodSections]
 [-ErrorHandling::RequireCarping]
+[-InputOutput::ProhibitBacktickOperators]
 [-InputOutput::RequireBracedFileHandleWithPrint]
 [-Modules::ProhibitAutomaticExportation]
 [-Modules::ProhibitMultiplePackages]

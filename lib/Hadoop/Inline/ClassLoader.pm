@@ -16,8 +16,11 @@ use Ref::Util      qw(
 use Constant::FromGlobal DEBUG => { int => 1, default => 0, env => 1 };
 
 use constant {
+    CHAR_COLON     => q{:},
+    EMPTY_STRING   => q{ },
     HADOOP_COMMAND => '/usr/bin/hadoop',
     IJ_DEBUG       => DEBUG && DEBUG > 1,
+    PACKAGE_DELIMITER => q{::},
 };
 
 my $ENV_INITIALIZED;
@@ -27,9 +30,10 @@ my %DEFAULT = (
 );
 
 sub import {
-    my $class        = shift;
-    my $opt          = @_ && is_hashref $_[0] ? shift(@_) : { %DEFAULT };
-    my @java_classes = @_ or croak "No java classes were defined";
+    my($class, @args) = @_;
+
+    my $opt          = @args && is_hashref $args[0] ? shift(@args) : { %DEFAULT };
+    my @java_classes = @args or croak 'No java classes were defined';
     my $caller       = $opt->{export_to} || caller 1;
 
     if ( ! $ENV_INITIALIZED ) {
@@ -57,7 +61,7 @@ sub import {
         1;
     } or do {
         my $eval_error = $@ || 'Zombie error';
-        croak sprintf "Unable to inject Inline::Java into the caller(%s): %s",
+        croak sprintf 'Unable to inject Inline::Java into the caller(%s): %s',
                         $caller,
                         $eval_error,
         ;
@@ -89,7 +93,7 @@ sub _collect_env {
     my $cmd = $opt->{hadoop_command} || HADOOP_COMMAND;
 
     if ( ! -e $cmd || ! -x _ ) {
-        croak sprintf "This module requires `%s` to be present as an executable",
+        croak sprintf 'This module requires `%s` to be present as an executable',
                         $cmd,
         ;
     }
@@ -101,7 +105,7 @@ sub _collect_env {
     push @paths, @{ $opt->{extra_classpath} } if is_arrayref $opt->{extra_classpath};
 
     if ( DEBUG ) {
-        print STDERR "CLASSPATH(before expansion):\n";
+        print STDERR 'CLASSPATH(before expansion):\n';
         print STDERR "\t$_\n" for @paths;
     }
 
@@ -115,7 +119,7 @@ sub _collect_env {
     @paths = map { glob $_ } @paths;
 
     if ( DEBUG ) {
-        print STDERR "CLASSPATH(after expansion):\n";
+        print STDERR 'CLASSPATH(after expansion):\n';
         print STDERR "\t$_\n" for @paths;
     }
 
@@ -124,7 +128,7 @@ sub _collect_env {
         my @n = split m{\n+}xms, $native;
         shift @n;
         map {
-            my @k = split m{\s+}xms, $_, 3;
+            my @k = split m{\s+}xms, $_, 3; ## no critic (ValuesAndExpressions::ProhibitMagicNumbers)
             $k[0] =~ s{ [:] \z }{}xms;
             $k[0] => {
                 status => $k[1],
@@ -133,15 +137,15 @@ sub _collect_env {
         } @n;
     };
 
-    my $hadoop = $n{hadoop} || croak "Failed to collect the hadoop native binary path";
+    my $hadoop = $n{hadoop} || croak 'Failed to collect the hadoop native binary path';
     my $native = dirname $hadoop->{value};
     my $hopts = '-Djava.library.path=' . dirname $native;
 
     my %henv;
-    $henv{CLASSPATH}                    = join ':', @paths;
+    $henv{CLASSPATH}                    = join CHAR_COLON, @paths;
     $henv{HADOOP_COMMON_LIB_NATIVE_DIR} = $native;
     $henv{HADOOP_OPTS}                  = $ENV{HADOOP_OPTS}
-                                        ? $ENV{HADOOP_OPTS} . ' ' . $hopts
+                                        ? $ENV{HADOOP_OPTS} . EMPTY_STRING . $hopts
                                         : $hopts
                                         ;
 
@@ -153,7 +157,7 @@ sub _collect_env {
         JAVA_LIBRARY_PATH
         LD_LIBRARY_PATH
     /) {
-        $henv{ $path } = $ENV{ $path } ? $ENV{ $path } . ':' . $native : $native;
+        $henv{ $path } = $ENV{ $path } ? $ENV{ $path } . CHAR_COLON . $native : $native;
     }
 
     return \%henv, \@paths;
@@ -167,7 +171,7 @@ sub _map_java_imports_to_short_names {
     my $filter  = do {
         my @rv = split m{ [:]{2} }xms, $base_ns;
         pop @rv;
-        join '::', @rv;
+        join PACKAGE_DELIMITER, @rv;
     };
 
     my @ns = $class->_namespace_probe( $base_ns );
@@ -175,30 +179,43 @@ sub _map_java_imports_to_short_names {
 
     @ns = grep { m{ [:]{2} \z }xms } @ns;
 
+    my $package_delimiter = PACKAGE_DELIMITER;
     no strict qw( refs );
     foreach my $class ( @ns ) {
-        (my $short_name = $class) =~ s{ \Q$filter\E:: }{}xms;
-        $short_name = join '::',
+        (my $short_name = $class) =~ s{
+            \Q$filter\E
+            $package_delimiter
+        }{}xms;
+        $short_name = join  PACKAGE_DELIMITER,
                             map { ucfirst $_ } split m{ [:]{2} }xms,
                             $short_name
         ;
         # import() was called multiple times?
-        next if %{ $short_name . '::' };
+        next if %{ $short_name . PACKAGE_DELIMITER };
 
-        printf STDERR "Mapping %s => %s", $short_name, $class if DEBUG;
+        printf STDERR 'Mapping %s => %s', $short_name, $class if DEBUG;
 
-        *{ $short_name . '::' } = \*{ $class };
+        *{ $short_name . PACKAGE_DELIMITER } = \*{ $class };
     }
+
+    return;
 }
 
 sub _namespace_probe {
     my $class = shift;
     my $sym   = shift;
+
     my @names;
     no strict qw( refs );
-    foreach my $type ( grep { m{ \A [a-z] }xmsi } keys %{ $sym } ) {
+    foreach my $type (
+        grep {
+            m{ \A [a-z] }xmsi
+        }
+        keys %{ $sym }
+    ) {
         push @names, $class->_namespace_probe( $sym . $type );
     }
+
     return $sym, @names;
 }
 
