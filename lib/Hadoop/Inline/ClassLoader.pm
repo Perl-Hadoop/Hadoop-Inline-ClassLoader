@@ -4,7 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 
-our $VERSION = '0.001';
+# VERSION
 
 use Carp           qw( croak      );
 use File::Basename qw( dirname    );
