@@ -1,6 +1,6 @@
 package Hadoop::Inline::ClassLoader;
 
-use 5.010;
+use 5.014;
 use strict;
 use warnings;
 
@@ -14,6 +14,7 @@ use Ref::Util      qw(
 );
 
 use Constant::FromGlobal DEBUG => { int => 1, default => 0, env => 1 };
+
 use constant {
     HADOOP_COMMAND => '/usr/bin/hadoop',
     IJ_DEBUG       => DEBUG && DEBUG > 1,
@@ -216,8 +217,8 @@ Hadoop::Inline::ClassLoader - Hadoop Java class loader through Inline::Java
 =head1 DESCRIPTION
 
 Hadoop Java class loader through Inline::Java. This module tries to setup the
-environment needed for tha Hadoop classes and also has aut-study feature and
-shart name aliasing for Perl packages name mappings.
+environment needed for the Hadoop classes and also has auto-study feature and
+short name aliasing for Perl packages' name mappings.
 
 =head1 SYNOPSIS
 
@@ -236,6 +237,7 @@ them, then you may need to specify the rest if you need those to be present.
 =head3 alias
 
 Boolean. Enable or disable short name aliasing. Enabled by default.
+This will create short names for the undelying Java class name mappings.
 
 =head3 export_to
 
@@ -246,12 +248,12 @@ be useful if you'd like to wrap this module.
 =head3 extra_classpath
 
 Hadoop configuration might be missing some classpaths and it you need
-to include them them this option can be used. It need to be an arrayref.
+to include them them this option can be used. It needs to be an arrayref.
 
 =head3 hadoop_command
 
-The full path to the hadoop commandline which will be used to probe the
-hadoop classpaths and other options to be used by this module.
+The full path to the hadoop command line which will be used to probe the
+Hadoop Class Paths and other options to be utilized by this module.
 
 =head2 Java Classes
 
@@ -259,3 +261,4 @@ You need to define a list of java classes to be loaded by this module.
 they will be auto-studied and made available to your program.
 
 =cut
+
