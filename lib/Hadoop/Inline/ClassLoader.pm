@@ -21,6 +21,9 @@ use constant {
     HADOOP_COMMAND => '/usr/bin/hadoop',
     IJ_DEBUG       => DEBUG && DEBUG > 1,
     PACKAGE_DELIMITER => q{::},
+    RE_MULTI_LF       => qr{ \n+ }xms,
+    RE_PATH_SEP_CHAR  => qr{ [:] }xms,
+    RE_WS             => qr{ \s+ }xms,
 };
 
 my $ENV_INITIALIZED;
@@ -100,7 +103,7 @@ sub _collect_env {
 
     my $q = _capture( $cmd => 'classpath' );
 
-    my @paths = split m{[:]}xms, $q;
+    my @paths = split RE_PATH_SEP_CHAR, $q;
 
     push @paths, @{ $opt->{extra_classpath} } if is_arrayref $opt->{extra_classpath};
 
@@ -123,13 +126,14 @@ sub _collect_env {
         print STDERR "\t$_\n" for @paths;
     }
 
+    state $re_path_sep = RE_PATH_SEP_CHAR;
     my %n = do {
         my $native = _capture( $cmd => 'checknative' );
-        my @n = split m{\n+}xms, $native;
+        my @n = split RE_MULTI_LF, $native;
         shift @n;
         map {
-            my @k = split m{\s+}xms, $_, 3; ## no critic (ValuesAndExpressions::ProhibitMagicNumbers)
-            $k[0] =~ s{ [:] \z }{}xms;
+            my @k = split RE_WS, $_, 3; ## no critic (ValuesAndExpressions::ProhibitMagicNumbers)
+            $k[0] =~ s{ $re_path_sep \z }{}xms;
             $k[0] => {
                 status => $k[1],
                 value  => $k[2],
@@ -167,9 +171,11 @@ sub _map_java_imports_to_short_names {
     my $class = shift;
     # Give somewhat meaningful names to the imported Java classes
 
+    state $package_delimiter = PACKAGE_DELIMITER;
+
     my $base_ns = 'org::apache::hadoop::';
     my $filter  = do {
-        my @rv = split m{ [:]{2} }xms, $base_ns;
+        my @rv = split m{ $package_delimiter }xms, $base_ns;
         pop @rv;
         join PACKAGE_DELIMITER, @rv;
     };
@@ -177,9 +183,8 @@ sub _map_java_imports_to_short_names {
     my @ns = $class->_namespace_probe( $base_ns );
     shift @ns;
 
-    @ns = grep { m{ [:]{2} \z }xms } @ns;
+    @ns = grep { m{ $package_delimiter \z }xms } @ns;
 
-    my $package_delimiter = PACKAGE_DELIMITER;
     no strict qw( refs );
     foreach my $class ( @ns ) {
         (my $short_name = $class) =~ s{
@@ -187,7 +192,7 @@ sub _map_java_imports_to_short_names {
             $package_delimiter
         }{}xms;
         $short_name = join  PACKAGE_DELIMITER,
-                            map { ucfirst $_ } split m{ [:]{2} }xms,
+                            map { ucfirst $_ } split m{ $package_delimiter }xms,
                             $short_name
         ;
         # import() was called multiple times?
