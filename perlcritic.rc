@@ -114,7 +114,7 @@ verbose  = [%p] %m at line %l, column %c. (Severity: %s) - %f - %r\n
 allow_leading_tabs = 0
 
 [InputOutput::RequireCheckedSyscalls]
-exclude_functions = print
+exclude_functions = print say
 
 [RegularExpressions::ProhibitUnusualDelimiters]
 allow_all_brackets = 1
