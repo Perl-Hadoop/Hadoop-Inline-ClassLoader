@@ -6,20 +6,26 @@ use warnings;
 
 # VERSION
 
-use Carp           qw( croak      );
-use File::Basename qw( dirname    );
+use Carp           qw( croak   );
+use File::Basename qw( dirname );
 use Ref::Util      qw(
     is_arrayref
     is_hashref
 );
 
-use Constant::FromGlobal DEBUG => { int => 1, default => 0, env => 1 };
+use Constant::FromGlobal
+    DEBUG => {
+        default => 0,
+        env     => 1,
+        int     => 1,
+    },
+;
 
 use constant {
-    CHAR_COLON     => q{:},
-    EMPTY_STRING   => q{ },
-    HADOOP_COMMAND => '/usr/bin/hadoop',
-    IJ_DEBUG       => DEBUG && DEBUG > 1,
+    CHAR_COLON        => q{:},
+    EMPTY_STRING      => q{ },
+    HADOOP_COMMAND    => '/usr/bin/hadoop',
+    IJ_DEBUG          => DEBUG && DEBUG > 1,
     PACKAGE_DELIMITER => q{::},
     RE_MULTI_LF       => qr{ \n+ }xms,
     RE_PATH_SEP_CHAR  => qr{ [:] }xms,
