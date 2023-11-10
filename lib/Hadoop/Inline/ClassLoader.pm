@@ -251,36 +251,43 @@ short name aliasing for Perl packages' name mappings.
 
 =head2 Options
 
-You can specify a hashref with the optional options to override some functionality.
-
-Setting options hash yourself will disable most defaults, so if you set one of
-them, then you may need to specify the rest if you need those to be present.
+You can specify a hashref with the optional options to override some
+functionality. When setting this options hash yourself, you will be
+disabling most defaults. So, if you set one of them, then you may
+need to specify the rest, if you need those to be present.
 
 =head3 alias
 
-Boolean. Enable or disable short name aliasing. Enabled by default.
-This will create short names for the undelying Java class name mappings.
+Boolean. Enable or disable short name aliasing. This will create short
+names for the undelying Java class name mappings.
+
+Enabled by default.
 
 =head3 export_to
 
-By default the environment and definitions will be in the caller namespace
-which can be altered by this option. Normally you won't need this but can
-be useful if you'd like to wrap this module.
+By default, the environment and definitions will be in the caller namespace
+which can be altered by this option. Normally, you won't need this, but it
+can be useful if you'd like to wrap this module.
 
 =head3 extra_classpath
 
-Hadoop configuration might be missing some classpaths and it you need
-to include them them this option can be used. It needs to be an arrayref.
+Hadoop configuration might be missing some of the classpaths and if you need
+to include them, then this option can be used.
+
+It needs to be an arrayref.
 
 =head3 hadoop_command
 
-The full path to the hadoop command line which will be used to probe the
-Hadoop Class Paths and other options to be utilized by this module.
+The full path to the hadoop command line executable, which will be used
+to probe the Hadoop Class Paths and other options to be utilized by this
+module.
+
+The default value is C</usr/bin/hadoop>.
 
 =head2 Java Classes
 
 You need to define a list of java classes to be loaded by this module.
-they will be auto-studied and made available to your program.
+they will be auto-studied and will be made available to your program.
 
 =cut
 
