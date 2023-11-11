@@ -1,6 +1,8 @@
 Revision history for Hadoop-Inline-ClassLoader
 
 {{$NEXT}}
+
+0.002 2023-11-11 BURAK
 - Packaging fixes.
 - perl 5.14 is now required.
 
